@@ -1,0 +1,26 @@
+name = "echo-gamer-companion"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "echo-gamer-companion"
+database_id = "0668bec0-4e5b-4519-a813-2d9159df5f11"
+
+[[kv_namespaces]]
+binding = "GC_CACHE"
+id = "fff6948b835946bc9a2cccc30690ce79"
+
+[triggers]
+crons = ["0 5 * * *"]
+
+[[services]]
+binding = "ENGINE_RUNTIME"
+service = "echo-engine-runtime"
+
+[[services]]
+binding = "SHARED_BRAIN"
+service = "echo-shared-brain"
