@@ -64,7 +64,8 @@ export default {
     try {
       /* ══════════════════ PUBLIC ══════════════════ */
 
-      if (p === '/health' || p === '/') return json({ status: 'ok', service: 'echo-gamer-companion', version: '1.0.0', timestamp: new Date().toISOString() });
+      if (p === '/') return json({ name: 'echo-gamer-companion', status: 'ok', version: '1.0.0', docs: '/health', timestamp: new Date().toISOString() });
+      if (p === '/health') return json({ status: 'ok', service: 'echo-gamer-companion', version: '1.0.0', timestamp: new Date().toISOString() });
 
       /* ── Public leaderboard ── */
       if (m === 'GET' && p.startsWith('/lb/')) {
