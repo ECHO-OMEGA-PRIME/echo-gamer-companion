@@ -520,14 +520,14 @@ export default {
         return json({ success: true, data: rows.results });
       }
 
-      return json({ error: 'Not found', endpoints: ['/health', '/games', '/players', '/sessions', '/drills', '/pros', '/teams', '/strategies', '/leaderboard', '/analytics', '/ai'] }, 404);
+      return json({ error: 'Not found', path: p, endpoints: ['/health', '/games', '/players', '/sessions', '/drills', '/pros', '/teams', '/strategies', '/leaderboard', '/analytics', '/ai'] }, 404);
 
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Internal error';
       if (msg.includes('JSON')) {
         return json({ error: 'Invalid JSON body' }, 400);
       }
-      console.error(`[echo-gamer-companion] ${msg}`);
+      console.error(`[echo-gamer-companion] Unhandled error: ${msg}`);
       return json({ error: 'Internal server error' }, 500);
     }
   },
