@@ -524,7 +524,11 @@ export default {
 
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Internal error';
-      return json({ error: msg }, 500);
+      if (msg.includes('JSON')) {
+        return json({ error: 'Invalid JSON body' }, 400);
+      }
+      console.error(`[echo-gamer-companion] ${msg}`);
+      return json({ error: 'Internal server error' }, 500);
     }
   },
 
