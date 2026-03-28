@@ -146,7 +146,8 @@ export default {
       }
 
       /* ══════════════════ AUTH REQUIRED ══════════════════ */
-      if (!authOk(req, env)) return json({ error: 'Unauthorized' }, 401);
+      try {
+    if (!authOk(req, env)) return json({ error: 'Unauthorized' }, 401);
 
       /* ── Players CRUD ── */
       if (m === 'GET' && p === '/players') {
@@ -164,7 +165,14 @@ export default {
       if (m === 'GET' && p.match(/^\/players\/\d+$/)) {
         const id = parseInt(p.split('/')[2]);
         const player = await env.DB.prepare('SELECT * FROM players WHERE id = ?').bind(id).first();
-        if (!player) return json({ error: 'Not found' }, 404);
+        if (!player) } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      const stack = err instanceof Error ? err.stack : undefined;
+      slog('error', 'Unhandled request error', { method: m, path: p, error: msg, stack });
+      return json({ error: 'Internal server error', message: msg, path: p }, 500);
+    }
+
+    return json({ error: 'Not found' }, 404);
         const profiles = await env.DB.prepare('SELECT gp.*, g.name as game_name, g.slug as game_slug FROM game_profiles gp JOIN games g ON gp.game_id = g.id WHERE gp.player_id = ?').bind(id).all();
         const recentSessions = await env.DB.prepare('SELECT s.*, g.name as game_name FROM sessions s JOIN games g ON s.game_id = g.id WHERE s.player_id = ? ORDER BY s.created_at DESC LIMIT 10').bind(id).all();
         return json({ success: true, data: { ...player, game_profiles: profiles.results, recent_sessions: recentSessions.results } });
@@ -372,7 +380,14 @@ export default {
       if (m === 'GET' && p.match(/^\/teams\/\d+$/)) {
         const id = parseInt(p.split('/')[2]);
         const team = await env.DB.prepare('SELECT * FROM teams WHERE id = ?').bind(id).first();
-        if (!team) return json({ error: 'Not found' }, 404);
+        if (!team) } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      const stack = err instanceof Error ? err.stack : undefined;
+      slog('error', 'Unhandled request error', { method: m, path: p, error: msg, stack });
+      return json({ error: 'Internal server error', message: msg, path: p }, 500);
+    }
+
+    return json({ error: 'Not found' }, 404);
         const members = await env.DB.prepare('SELECT tm.*, p.username, p.avatar_url, p.rank FROM team_members tm JOIN players p ON tm.player_id = p.id WHERE tm.team_id = ?').bind(id).all();
         const strategies = await env.DB.prepare('SELECT * FROM strategies WHERE team_id = ? ORDER BY times_used DESC').bind(id).all();
         return json({ success: true, data: { ...team, members: members.results, strategies: strategies.results } });
@@ -488,7 +503,14 @@ export default {
       if (m === 'GET' && p.match(/^\/players\/\d+\/stats$/)) {
         const playerId = parseInt(p.split('/')[2]);
         const player = await env.DB.prepare('SELECT total_sessions, total_hours, total_kills, total_deaths, total_wins, total_losses, xp, level, rank FROM players WHERE id = ?').bind(playerId).first();
-        if (!player) return json({ error: 'Not found' }, 404);
+        if (!player) } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      const stack = err instanceof Error ? err.stack : undefined;
+      slog('error', 'Unhandled request error', { method: m, path: p, error: msg, stack });
+      return json({ error: 'Internal server error', message: msg, path: p }, 500);
+    }
+
+    return json({ error: 'Not found' }, 404);
         const byGame = await env.DB.prepare('SELECT g.name, gp.total_sessions, gp.total_hours, gp.best_score, gp.avg_score FROM game_profiles gp JOIN games g ON gp.game_id = g.id WHERE gp.player_id = ? ORDER BY gp.total_sessions DESC').bind(playerId).all();
         const recentDrills = await env.DB.prepare('SELECT da.*, td.name as drill_name FROM drill_attempts da JOIN training_drills td ON da.drill_id = td.id WHERE da.player_id = ? ORDER BY da.created_at DESC LIMIT 10').bind(playerId).all();
         return json({
